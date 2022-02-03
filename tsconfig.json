@@ -23,5 +23,10 @@
   },
   "include": [
     "src"
-  ]
+  ],
+  "paths": {
+    "@common": [
+      "src/common/*"
+    ]
+  },
 }

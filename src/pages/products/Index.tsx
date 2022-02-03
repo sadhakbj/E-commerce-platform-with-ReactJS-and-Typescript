@@ -3,6 +3,7 @@ import { XIcon } from "@heroicons/react/outline"
 import { ChevronDownIcon, FilterIcon, MinusSmIcon, PlusSmIcon, ViewGridIcon } from "@heroicons/react/solid"
 import axios from "axios"
 import React, { Fragment, useEffect, useState } from "react"
+import Loader from "../../common/components/Loader"
 import ProductInterface from "../../interfaces/Product"
 import SingleProduct from "./Product"
 
@@ -82,6 +83,11 @@ const Products: React.FC = () => {
 
   return (
     <div className="bg-white">
+      {loading ? (
+        <>
+          <Loader />
+        </>
+      ) : null}
       <div>
         {/* Mobile filter dialog */}
         <Transition.Root show={mobileFiltersOpen} as={Fragment}>
