@@ -1,5 +1,6 @@
 import React from "react"
 import { BrowserRouter, Route, Routes } from "react-router-dom"
+import New from "./pages/products/New"
 import Navbar from "./layouts/Navbar"
 import About from "./pages/About"
 import Login from "./pages/auth/Login"
@@ -18,6 +19,7 @@ const App: React.FC = () => {
           <Route path="/about" element={<About />} />
           <Route path="/products/:id" element={<Details />} />
           <Route path="/products" element={<Products />} />
+          <Route path="/new" element={<New />} />
           <Route path="/auth/login" element={<Login />} />
         </Routes>
       </BrowserRouter>
