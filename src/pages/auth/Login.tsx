@@ -1,10 +1,11 @@
 import axios from "axios"
 import React, { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import Loader from "../../common/components/Loader"
 
 const Login: React.FC = () => {
   const navigate = useNavigate()
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [credentials, setCredentials] = useState({
     username: "",
     password: "",
@@ -18,9 +19,8 @@ const Login: React.FC = () => {
       localStorage.setItem("token", JSON.stringify(res.data))
       navigate("/products")
     } catch (error) {
+      setLoading(false)
       console.log(error)
-
-      alert("Failed")
     }
     // setFormErrors({})
     // dispatch(
@@ -46,6 +46,7 @@ const Login: React.FC = () => {
         ```
       */}
       <div className="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        {loading ? <Loader /> : null}
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <img
             className="mx-auto h-12 w-auto"
