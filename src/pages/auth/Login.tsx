@@ -1,34 +1,47 @@
-import axios from "axios"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
 import Loader from "../../common/components/Loader"
+import { attemptLogin } from "../../store/auth/actions"
+import { RootState } from "../../store/reducers"
 
 const Login: React.FC = () => {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
-  const [credentials, setCredentials] = useState({
+  const dispatch = useDispatch()
+  const initialCredentials = {
     username: "",
     password: "",
-  })
+  }
+  const [credentials, setCredentials] = useState(initialCredentials)
+  const [formErrors, setFormErrors] = useState<string>("")
+
+  const isLoggedIn = useSelector((state: RootState) => state?.auth.isLoggedIn)
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate("/products")
+    }
+  }, [isLoggedIn, navigate])
+
+  const handleOnSuccess = () => {
+    setLoading(false)
+    navigate("/products")
+  }
 
   const handleLogin = async (e) => {
     e.preventDefault()
     setLoading(true)
-    try {
-      const res = await axios.post("https://fakestoreapi.com/auth/login", credentials)
-      localStorage.setItem("token", JSON.stringify(res.data))
-      navigate("/products")
-    } catch (error) {
-      setLoading(false)
-      console.log(error)
-    }
-    // setFormErrors({})
-    // dispatch(
-    //   attemptLogin(credentials, handleOnSuccess, (errors) => {
-    //     setLoading(false)
-    //     setFormErrors(errors)
-    //   })
-    // )
+
+    dispatch(
+      attemptLogin(credentials, handleOnSuccess, (error) => {
+        setLoading(false)
+        if (error.response.status === 401) {
+          setCredentials(initialCredentials)
+          setFormErrors("Invalid credentials")
+        }
+      })
+    )
   }
 
   const handleChange = (e) => {
@@ -64,6 +77,7 @@ const Login: React.FC = () => {
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            {formErrors ? <div className="bg-red-400 text-white p-2 text-center mb-2 rounded">{formErrors}</div> : null}
             <form className="space-y-6" onSubmit={handleLogin}>
               <div>
                 <label htmlFor="username" className="block text-sm font-medium text-gray-700">
@@ -75,6 +89,7 @@ const Login: React.FC = () => {
                     name="username"
                     type="username"
                     autoComplete="username"
+                    placeholder="john.doe"
                     required
                     value={credentials.username}
                     onChange={handleChange}
@@ -93,7 +108,7 @@ const Login: React.FC = () => {
                     name="password"
                     type="password"
                     required
-                    placeholder="Email"
+                    placeholder="******************"
                     onChange={handleChange}
                     value={credentials.password}
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
