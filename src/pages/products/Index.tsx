@@ -1,25 +1,85 @@
 import { Dialog, Disclosure, Menu, Transition } from "@headlessui/react"
 import { XIcon } from "@heroicons/react/outline"
 import { ChevronDownIcon, FilterIcon, MinusSmIcon, PlusSmIcon, ViewGridIcon } from "@heroicons/react/solid"
-import axios from "axios"
 import React, { Fragment, useEffect, useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { useNavigate } from "react-router-dom"
+import { getProducts, filterProducts } from "../../store/products/actions"
+import SingleProduct from "./partials/SingleProduct"
 import Loader from "../../common/components/Loader"
-import ProductInterface from "../../interfaces/Product"
-import SingleProduct from "./Product"
+import IProduct from "../../interfaces/IProduct"
+import { RootState } from "../../store/reducers"
 
 const Products: React.FC = () => {
-  const [products, setProducts] = useState<ProductInterface[]>([])
   const [loading, setLoading] = useState<boolean>(false)
+  const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn)
+  const products: IProduct[] = useSelector((state: RootState) => state.products.filteredProducts)
+  const allProducts: IProduct[] = useSelector((state: RootState) => state.products.products)
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   useEffect(() => {
-    async function fetchData() {
-      setLoading(true)
-      const response = await axios.get("https://fakestoreapi.com/products/")
-      setProducts(response.data)
-      setLoading(false)
+    if (!isLoggedIn) {
+      navigate("/login")
     }
-    fetchData()
-  }, [])
+  }, [isLoggedIn, navigate])
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      setLoading(true)
+      dispatch(
+        getProducts(() => {
+          setLoading(false)
+        })
+      )
+    }
+  }, [dispatch, isLoggedIn, navigate])
+
+  const [filterParams, setFilterParams] = useState({
+    q: "",
+    category: "",
+    sortBy: "",
+  })
+
+  useEffect(() => {
+    if (allProducts.length > 0) {
+      setLoading(true)
+      dispatch(
+        filterProducts(filterParams, () => {
+          setLoading(false)
+        })
+      )
+    }
+  }, [dispatch, filterParams, allProducts.length])
+
+  const handleSearch = (e) => {
+    setFilterParams({
+      ...filterParams,
+      q: "gold",
+    })
+  }
+
+  const handleReset = (e) => {
+    setFilterParams({
+      q: "",
+      category: "",
+      sortBy: "",
+    })
+  }
+
+  const handleSort = (name) => {
+    setFilterParams({
+      ...filterParams,
+      sortBy: name,
+    })
+  }
+
+  const chooseCategory = (e) => {
+    setFilterParams({
+      ...filterParams,
+      category: "jewelery",
+    })
+  }
 
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 
@@ -66,11 +126,9 @@ const Products: React.FC = () => {
   }
 
   const sortOptions = [
-    { name: "Most Popular", href: "#", current: true },
-    { name: "Best Rating", href: "#", current: false },
-    { name: "Newest", href: "#", current: false },
-    { name: "Price: Low to High", href: "#", current: false },
-    { name: "Price: High to Low", href: "#", current: false },
+    { label: "Best Rating", name: "rating", current: false },
+    { label: "Price: Low to High", name: "price_low_high", current: false },
+    { label: "Price: High to Low", name: "price_high_low", current: false },
   ]
 
   const subCategories = [
@@ -191,6 +249,14 @@ const Products: React.FC = () => {
           <div className="relative z-10 flex items-baseline justify-between pt-24 pb-6 border-b border-gray-200">
             <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">New Arrivals</h1>
 
+            <button onClick={handleSearch}>Search</button>
+
+            <button onClick={handleReset} className="bg-green-300 p-2 text-white">
+              Reset
+            </button>
+
+            <button onClick={chooseCategory}>Category</button>
+
             <div className="flex items-center">
               <Menu as="div" className="relative inline-block text-left">
                 <div>
@@ -217,16 +283,16 @@ const Products: React.FC = () => {
                       {sortOptions.map((option) => (
                         <Menu.Item key={option.name}>
                           {({ active }) => (
-                            <a
-                              href={option.href}
+                            <button
+                              onClick={() => handleSort(option.name)}
                               className={classNames(
                                 option.current ? "font-medium text-gray-900" : "text-gray-500",
                                 active ? "bg-gray-100" : "",
-                                "block px-4 py-2 text-sm"
+                                "block px-4 py-2 text-sm w-full text-left"
                               )}
                             >
-                              {option.name}
-                            </a>
+                              {option.label}
+                            </button>
                           )}
                         </Menu.Item>
                       ))}
@@ -311,7 +377,7 @@ const Products: React.FC = () => {
                 ))}
               </form>
 
-              {/* Product grid */}
+              {/* IProduct grid */}
               <div className="lg:col-span-3">
                 {/* Replace with your content */}
                 <div className="bg-white">
@@ -320,28 +386,7 @@ const Products: React.FC = () => {
 
                     <div className="mt-6 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
                       {products.map((product) => (
-                        <div key={product.id} className="group relative">
-                          <div className="w-full min-h-80 bg-gray-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-80 lg:aspect-none">
-                            <img
-                              src={product.image}
-                              alt={product.title}
-                              className="w-full h-full object-center object-cover lg:w-full lg:h-full"
-                            />
-                          </div>
-                          <div className="mt-4 flex justify-between">
-                            <div>
-                              <h3 className="text-sm text-gray-700">
-                                <a href={product.image}>
-                                  <span aria-hidden="true" className="absolute inset-0" />
-                                  {product.title}
-                                </a>
-                              </h3>
-                              {/*product color next line*/}
-                              <p className="mt-1 text-sm text-gray-500">{product.id}</p>
-                            </div>
-                            <p className="text-sm font-medium text-gray-900">{product.price}</p>
-                          </div>
-                        </div>
+                        <SingleProduct product={product} key={product.id} />
                       ))}
                     </div>
                   </div>

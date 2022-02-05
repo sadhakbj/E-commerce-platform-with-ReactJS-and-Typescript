@@ -1,12 +1,12 @@
 import axios from "axios"
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import Product from "../../interfaces/Product"
+import IProduct from "../../interfaces/IProduct"
 
 const Details: React.FC = () => {
   const params = useParams()
   const [loading, setLoading] = useState(true)
-  const [product, setProduct] = useState<Product>()
+  const [product, setProduct] = useState<IProduct>()
 
   useEffect(() => {
     async function fetchData() {

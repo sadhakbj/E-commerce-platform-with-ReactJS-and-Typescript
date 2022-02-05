@@ -1,6 +1,6 @@
 import React from "react"
 import { Link } from "react-router-dom"
-import ProductInterface from "../../interfaces/Product"
+import ProductInterface from "../../interfaces/IProduct"
 
 export interface ProductProps {
   product: ProductInterface

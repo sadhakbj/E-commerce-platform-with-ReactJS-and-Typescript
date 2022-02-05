@@ -1,3 +1,5 @@
+import { SET_AUTH, SET_CURRENT_USER, SET_IS_LOGGED_IN } from "./type"
+
 const initialState = {
   isLoggedIn: !!localStorage.getItem("token"),
   currentUser: localStorage.getItem("user"),
@@ -8,16 +10,16 @@ const AuthReducer = (state = initialState, actions) => {
     case "value":
       return state
 
-    case "set_auth":
+    case SET_AUTH:
       return {
         ...state,
         ...actions.payload,
       }
 
-    case "set_current_user":
+    case SET_CURRENT_USER:
       return { ...state, currentUser: actions.payload }
 
-    case "set_is_logged_in":
+    case SET_IS_LOGGED_IN:
       return { ...state, isLoggedIn: actions.payload }
 
     default:

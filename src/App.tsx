@@ -1,30 +1,15 @@
 import React from "react"
-import { Provider } from "react-redux"
-import { BrowserRouter, Route, Routes } from "react-router-dom"
-import Navbar from "./layouts/Navbar"
-import About from "./pages/About"
-import Login from "./pages/auth/Login"
+import { Provider, useSelector } from "react-redux"
+import Router from "./common/router/Router"
 // pages
-import Home from "./pages/Home"
-import Details from "./pages/products/Details"
-import Products from "./pages/products/Index"
 import store from "./store/index"
+import { RootState } from "./store/reducers"
 
 const App: React.FC = () => {
   return (
     <div className="App">
       <Provider store={store}>
-        <BrowserRouter>
-          {/* <Loader /> */}
-          <Navbar />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/products/:id" element={<Details />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/auth/login" element={<Login />} />
-          </Routes>
-        </BrowserRouter>
+        <Router />
       </Provider>
     </div>
   )

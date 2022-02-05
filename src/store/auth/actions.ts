@@ -1,22 +1,16 @@
+import { SET_AUTH, SET_IS_LOGGED_IN } from "./type"
 import Api from "../../common/helpers/Api"
 
 export const setAuth = (data) => {
   return {
-    type: "set_auth",
-    payload: data,
-  }
-}
-
-export const setCurrentUser = (data) => {
-  return {
-    type: "set_current_user",
+    type: SET_AUTH,
     payload: data,
   }
 }
 
 export const setIsLoggedIn = (data) => {
   return {
-    type: "set_is_logged_in",
+    type: SET_IS_LOGGED_IN,
     payload: data,
   }
 }
