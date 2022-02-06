@@ -1,14 +1,22 @@
 import { Dialog, Disclosure, Menu, Transition } from "@headlessui/react"
-import { XIcon } from "@heroicons/react/outline"
-import { ChevronDownIcon, FilterIcon, MinusSmIcon, PlusSmIcon, ViewGridIcon } from "@heroicons/react/solid"
-import React, { Fragment, useEffect, useState } from "react"
+import { SearchIcon, XIcon } from "@heroicons/react/outline"
+import { ChevronDownIcon, FilterIcon, MinusSmIcon, PlusSmIcon } from "@heroicons/react/solid"
+import React, { Fragment, useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
+import Details from "./Details"
 import { getProducts, filterProducts } from "../../store/products/actions"
 import SingleProduct from "./partials/SingleProduct"
 import Loader from "../../common/components/Loader"
 import IProduct from "../../interfaces/IProduct"
 import { RootState } from "../../store/reducers"
+import { debounce } from "lodash"
+
+interface IFilterParams {
+  q: string
+  category: string[]
+  sortBy: string
+}
 
 const Products: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false)
@@ -17,12 +25,6 @@ const Products: React.FC = () => {
   const allProducts: IProduct[] = useSelector((state: RootState) => state.products.products)
   const navigate = useNavigate()
   const dispatch = useDispatch()
-
-  useEffect(() => {
-    if (!isLoggedIn) {
-      navigate("/login")
-    }
-  }, [isLoggedIn, navigate])
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -35,11 +37,13 @@ const Products: React.FC = () => {
     }
   }, [dispatch, isLoggedIn, navigate])
 
-  const [filterParams, setFilterParams] = useState({
+  const initialFilterParams: IFilterParams = {
     q: "",
-    category: "",
+    category: [],
     sortBy: "",
-  })
+  }
+
+  const [filterParams, setFilterParams] = useState<IFilterParams>(initialFilterParams)
 
   useEffect(() => {
     if (allProducts.length > 0) {
@@ -52,71 +56,73 @@ const Products: React.FC = () => {
     }
   }, [dispatch, filterParams, allProducts.length])
 
-  const handleSearch = (e) => {
+  /**
+   *  Debounce function to prevent excessive requests
+   */
+  const handleSearch = useRef(
+    debounce((query) => {
+      setFilterParams({
+        ...filterParams,
+        q: query,
+      })
+    }, 750)
+  ).current
+
+  /**
+   * Reset the filter to initial value.
+   */
+  const handleReset = () => {
+    setFilterParams(initialFilterParams)
+  }
+
+  /**
+   * Handle sorting
+   * @param sort
+   */
+  const handleSort = (sort: string) => {
     setFilterParams({
       ...filterParams,
-      q: "gold",
+      sortBy: sort,
     })
   }
 
-  const handleReset = (e) => {
-    setFilterParams({
-      q: "",
-      category: "",
-      sortBy: "",
-    })
+  /**
+   * Handle category change: add or remove category from filterParams
+   * @param category
+   */
+  const handleCategoryChange = (category) => {
+    if (filterParams.category.includes(category)) {
+      setFilterParams({
+        ...filterParams,
+        category: filterParams.category.filter((c) => c !== category),
+      })
+    } else {
+      setFilterParams({
+        ...filterParams,
+        category: [...filterParams.category, category],
+      })
+    }
   }
 
-  const handleSort = (name) => {
-    setFilterParams({
-      ...filterParams,
-      sortBy: name,
-    })
-  }
-
-  const chooseCategory = (e) => {
-    setFilterParams({
-      ...filterParams,
-      category: "jewelery",
-    })
+  /**
+   * Check if the category is already selected
+   * @param category
+   */
+  const isChecked = (category: string) => {
+    return filterParams.category.includes(category)
   }
 
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 
   const filters = [
     {
-      id: "color",
-      name: "Color",
-      options: [
-        { value: "white", label: "White", checked: false },
-        { value: "beige", label: "Beige", checked: false },
-        { value: "blue", label: "Blue", checked: true },
-        { value: "brown", label: "Brown", checked: false },
-        { value: "green", label: "Green", checked: false },
-        { value: "purple", label: "Purple", checked: false },
-      ],
-    },
-    {
       id: "category",
       name: "Category",
       options: [
-        { value: "new-arrivals", label: "New Arrivals", checked: false },
-        { value: "sale", label: "Sale", checked: false },
-        { value: "travel", label: "Travel", checked: true },
-        { value: "organization", label: "Organization", checked: false },
-        { value: "accessories", label: "Accessories", checked: false },
-      ],
-    },
-    {
-      id: "size",
-      name: "Size",
-      options: [
-        { value: "2l", label: "2L", checked: false },
-        { value: "6l", label: "6L", checked: false },
-        { value: "12l", label: "12L", checked: false },
-        { value: "18l", label: "18L", checked: false },
-        { value: "20l", label: "20L", checked: false },
-        { value: "40l", label: "40L", checked: true },
+        { value: "men's clothing", label: "Men's clothing" },
+        { value: "jewelery", label: "Jewelery" },
+        { value: "electronics", label: "Electronics" },
+        { value: "women's clothing", label: "Women's clothing" },
       ],
     },
   ]
@@ -130,15 +136,6 @@ const Products: React.FC = () => {
     { label: "Price: Low to High", name: "price_low_high", current: false },
     { label: "Price: High to Low", name: "price_high_low", current: false },
   ]
-
-  const subCategories = [
-    { name: "Totes", href: "#" },
-    { name: "Backpacks", href: "#" },
-    { name: "Travel Bags", href: "#" },
-    { name: "Hip Bags", href: "#" },
-    { name: "Laptop Sleeves", href: "#" },
-  ]
-
   return (
     <div className="bg-white">
       {loading ? (
@@ -146,6 +143,7 @@ const Products: React.FC = () => {
           <Loader />
         </>
       ) : null}
+
       <div>
         {/* Mobile filter dialog */}
         <Transition.Root show={mobileFiltersOpen} as={Fragment}>
@@ -187,15 +185,24 @@ const Products: React.FC = () => {
                 {/* Filters */}
                 <form className="mt-4 border-t border-gray-200">
                   <h3 className="sr-only">Categories</h3>
-                  <ul role="list" className="font-medium text-gray-900 px-2 py-3">
-                    {subCategories.map((category) => (
-                      <li key={category.name}>
-                        <a href={category.href} className="block px-2 py-3">
-                          {category.name}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="text-sm font-medium text-gray-900 space-y-4 pb-6 border-b border-gray-200">
+                    <label htmlFor="search" className="sr-only">
+                      Search
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <SearchIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                      </div>
+                      <input
+                        id="search"
+                        name="search"
+                        className="block w-full bg-white border border-gray-300 rounded-md py-2 pl-10 pr-3 text-sm placeholder-gray-500 focus:outline-none focus:text-gray-900 focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        placeholder="Search"
+                        type="search"
+                        onChange={(e) => handleSearch(e.target.value)}
+                      />
+                    </div>
+                  </div>
 
                   {filters.map((section) => (
                     <Disclosure as="div" key={section.id} className="border-t border-gray-200 px-4 py-6">
@@ -222,7 +229,8 @@ const Products: React.FC = () => {
                                     name={`${section.id}[]`}
                                     defaultValue={option.value}
                                     type="checkbox"
-                                    defaultChecked={option.checked}
+                                    checked={isChecked(option.value)}
+                                    onChange={() => handleCategoryChange(option.value)}
                                     className="h-4 w-4 border-gray-300 rounded text-indigo-600 focus:ring-indigo-500"
                                   />
                                   <label
@@ -245,18 +253,9 @@ const Products: React.FC = () => {
           </Dialog>
         </Transition.Root>
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative z-10 flex items-baseline justify-between pt-24 pb-6 border-b border-gray-200">
-            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">New Arrivals</h1>
-
-            <button onClick={handleSearch}>Search</button>
-
-            <button onClick={handleReset} className="bg-green-300 p-2 text-white">
-              Reset
-            </button>
-
-            <button onClick={chooseCategory}>Category</button>
-
+        <main className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 shadow-2xl mt-4 rounded-xl">
+          <div className="relative z-10 flex items-baseline justify-between pt-10 pb-6 border-b border-gray-200">
+            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">New Arrivals ({products.length})</h1>
             <div className="flex items-center">
               <Menu as="div" className="relative inline-block text-left">
                 <div>
@@ -301,10 +300,6 @@ const Products: React.FC = () => {
                 </Transition>
               </Menu>
 
-              <button type="button" className="p-2 -m-2 ml-5 sm:ml-7 text-gray-400 hover:text-gray-500">
-                <span className="sr-only">View grid</span>
-                <ViewGridIcon className="w-5 h-5" aria-hidden="true" />
-              </button>
               <button
                 type="button"
                 className="p-2 -m-2 ml-4 sm:ml-6 text-gray-400 hover:text-gray-500 lg:hidden"
@@ -325,13 +320,24 @@ const Products: React.FC = () => {
               {/* Filters */}
               <form className="hidden lg:block">
                 <h3 className="sr-only">Categories</h3>
-                <ul role="list" className="text-sm font-medium text-gray-900 space-y-4 pb-6 border-b border-gray-200">
-                  {/*{subCategories.map((category) => (*/}
-                  {/*  <li key={category.name}>*/}
-                  {/*    <a href={category.href}>{category.name}</a>*/}
-                  {/*  </li>*/}
-                  {/*))}*/}
-                </ul>
+                <div className="text-sm font-medium text-gray-900 space-y-4 pb-6 border-b border-gray-200">
+                  <label htmlFor="search" className="sr-only">
+                    Search
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <SearchIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                    </div>
+                    <input
+                      id="search"
+                      name="search"
+                      className="block w-full bg-white border border-gray-300 rounded-md py-2 pl-10 pr-3 text-sm placeholder-gray-500 focus:outline-none focus:text-gray-900 focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      placeholder="Search Products"
+                      type="search"
+                      onChange={(e) => handleSearch(e.target.value)}
+                    />
+                  </div>
+                </div>
 
                 {filters.map((section) => (
                   <Disclosure as="div" key={section.id} className="border-b border-gray-200 py-6">
@@ -358,7 +364,8 @@ const Products: React.FC = () => {
                                   name={`${section.id}[]`}
                                   defaultValue={option.value}
                                   type="checkbox"
-                                  defaultChecked={option.checked}
+                                  checked={isChecked(option.value)}
+                                  onChange={() => handleCategoryChange(option.value)}
                                   className="h-4 w-4 border-gray-300 rounded text-indigo-600 focus:ring-indigo-500"
                                 />
                                 <label
@@ -375,23 +382,24 @@ const Products: React.FC = () => {
                     )}
                   </Disclosure>
                 ))}
+                <div className="flex justify-end mt-2">
+                  <button onClick={handleReset} className="bg-green-300 p-2 text-white">
+                    Reset
+                  </button>
+                </div>
               </form>
 
               {/* IProduct grid */}
               <div className="lg:col-span-3">
-                {/* Replace with your content */}
                 <div className="bg-white">
                   <div>
-                    {/*<h2 className="text-2xl font-extrabold tracking-tight text-gray-900">Customers also purchased</h2>*/}
-
-                    <div className="mt-6 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+                    <div className="mt-2 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
                       {products.map((product) => (
                         <SingleProduct product={product} key={product.id} />
                       ))}
                     </div>
                   </div>
                 </div>
-                {/* /End replace */}
               </div>
             </div>
           </section>
