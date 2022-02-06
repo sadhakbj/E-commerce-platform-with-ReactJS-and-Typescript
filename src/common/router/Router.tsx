@@ -6,27 +6,26 @@ import { RootState } from "../../store/reducers"
 import Navbar from "../../layouts/Navbar"
 import About from "../../pages/About"
 import Login from "../../pages/auth/Login"
-import Home from "../../pages/Home"
 import Details from "../../pages/products/Details"
 import Products from "../../pages/products/Index"
 
 const ProtectedRoute = () => {
   const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn)
-  return isLoggedIn ? <Outlet /> : <Navigate to="/auth/login" />
+  return isLoggedIn ? <Outlet /> : <Navigate to="/" />
 }
 const Router = () => {
+  const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn)
+
   return (
     <BrowserRouter>
-      <Navbar />
+      {isLoggedIn ? <Navbar /> : null}
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Login />} />
         <Route path="/about" element={<About />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<Details />} />
         </Route>
-
-        <Route path="/auth/login" element={<Login />} />
       </Routes>
     </BrowserRouter>
   )

@@ -4,7 +4,6 @@ import { ChevronDownIcon, FilterIcon, MinusSmIcon, PlusSmIcon } from "@heroicons
 import React, { Fragment, useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
-import Details from "./Details"
 import { getProducts, filterProducts } from "../../store/products/actions"
 import SingleProduct from "./partials/SingleProduct"
 import Loader from "../../common/components/Loader"
@@ -65,7 +64,7 @@ const Products: React.FC = () => {
         ...filterParams,
         q: query,
       })
-    }, 750)
+    }, 300)
   ).current
 
   /**
@@ -137,7 +136,7 @@ const Products: React.FC = () => {
     { label: "Price: High to Low", name: "price_high_low", current: false },
   ]
   return (
-    <div className="bg-white">
+    <div>
       {loading ? (
         <>
           <Loader />
@@ -205,7 +204,12 @@ const Products: React.FC = () => {
                   </div>
 
                   {filters.map((section) => (
-                    <Disclosure as="div" key={section.id} className="border-t border-gray-200 px-4 py-6">
+                    <Disclosure
+                      defaultOpen={true}
+                      as="div"
+                      key={section.id}
+                      className="border-t border-gray-200 px-4 py-6"
+                    >
                       {({ open }) => (
                         <>
                           <h3 className="-mx-2 -my-3 flow-root">
@@ -253,8 +257,8 @@ const Products: React.FC = () => {
           </Dialog>
         </Transition.Root>
 
-        <main className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 shadow-2xl mt-4 rounded-xl">
-          <div className="relative z-10 flex items-baseline justify-between pt-10 pb-6 border-b border-gray-200">
+        <main className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-white">
+          <div className="relative z-20 flex items-baseline justify-between pt-10 pb-6 border-b border-gray-200">
             <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">New Arrivals ({products.length})</h1>
             <div className="flex items-center">
               <Menu as="div" className="relative inline-block text-left">
@@ -340,7 +344,7 @@ const Products: React.FC = () => {
                 </div>
 
                 {filters.map((section) => (
-                  <Disclosure as="div" key={section.id} className="border-b border-gray-200 py-6">
+                  <Disclosure as="div" defaultOpen={true} key={section.id} className="border-b border-gray-200 py-6">
                     {({ open }) => (
                       <>
                         <h3 className="-my-3 flow-root">
@@ -382,8 +386,11 @@ const Products: React.FC = () => {
                     )}
                   </Disclosure>
                 ))}
-                <div className="flex justify-end mt-2">
-                  <button onClick={handleReset} className="bg-green-300 p-2 text-white">
+                <div className="flex mt-2">
+                  <button
+                    onClick={handleReset}
+                    className="bg-white py-2 px-4 text-sm text-gray-600 border rounded hover:bg-gray-50"
+                  >
                     Reset
                   </button>
                 </div>
@@ -393,7 +400,12 @@ const Products: React.FC = () => {
               <div className="lg:col-span-3">
                 <div className="bg-white">
                   <div>
-                    <div className="mt-2 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+                    {products.length === 0 ? (
+                      <h3 className="flex justify-center text-xl items-center h-[250px]">No items found</h3>
+                    ) : (
+                      ""
+                    )}
+                    <div className="mt-2 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">
                       {products.map((product) => (
                         <SingleProduct product={product} key={product.id} />
                       ))}
