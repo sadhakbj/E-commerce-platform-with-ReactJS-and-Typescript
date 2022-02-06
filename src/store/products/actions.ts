@@ -29,9 +29,11 @@ export const filterProducts = (params, onSuccess) => async (dispatch, getState) 
   }
 
   if (params.category) {
-    filteredProducts = filteredProducts.filter((product) => {
-      return product.category.toLowerCase().includes(params.category.toLowerCase())
-    })
+    if (params.category.length > 0) {
+      filteredProducts = products.filter((product) => {
+        return params.category.includes(product.category)
+      })
+    }
   }
 
   if (params.sortBy) {
@@ -60,13 +62,14 @@ export const filterProducts = (params, onSuccess) => async (dispatch, getState) 
   }, 500)
 }
 
-export const getSingleProduct = (productId: number) => async (dispatch) => {
+export const getSingleProduct = (productId: number, onSuccess) => async (dispatch) => {
   try {
     const response = await Api.get(`/products/${productId}`)
     dispatch({
       type: SET_SINGLE_PRODUCT,
       payload: response.data,
     })
+    onSuccess()
   } catch (error) {
     console.log(error)
   }

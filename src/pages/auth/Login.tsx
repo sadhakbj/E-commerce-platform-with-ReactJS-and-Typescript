@@ -69,7 +69,7 @@ const Login: React.FC = () => {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
         </div>
 
-        <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-md border rounded-md border-gray-200 shadow-2xl">
           <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
             {formErrors ? (
               <div className="text-red-500 border border-red-500 p-2 text-center mb-6 rounded">{formErrors}</div>
