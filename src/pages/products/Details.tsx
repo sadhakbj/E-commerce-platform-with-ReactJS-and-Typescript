@@ -1,4 +1,5 @@
 import { HeartIcon, StarIcon } from "@heroicons/react/outline"
+import { StarIcon as StarIconSolid } from "@heroicons/react/solid"
 import React, { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useParams } from "react-router-dom"
@@ -33,31 +34,35 @@ const Details: React.FC = () => {
         <Loader />
       ) : (
         <section className="text-gray-700 overflow-hidden">
-          <div className="container px-5 py-10 mx-auto mt-5 shadow-2xl rounded-xl">
+          <div className="container px-5 py-10 mx-auto bg-white">
             <div className="border-b border-gray-200 mb-10 text-xxl">
               <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 mb-5">{product?.title}</h1>
             </div>
-            <div className="lg:w-4/5 mx-auto flex flex-wrap">
-              <img
-                className="lg:w-1/2 w-full object-cover object-center rounded border border-gray-200"
-                src={product?.image}
-                alt={product?.title}
-              />
+            <div className="lg:w-full mx-auto flex flex-wrap">
+              <div className="border border-gray-200 rounded p-[20px] shadow">
+                <img
+                  className="lg:w-auto h-[500px] w-full object-cover object-center"
+                  src={product?.image}
+                  alt={product?.title}
+                />
+              </div>
               <div className="lg:w-1/2 w-full lg:pl-10 lg:py-6 mt-6 lg:mt-0">
                 <h2 className="text-sm title-font text-gray-500 tracking-widest">{product?.category.toUpperCase()}</h2>
                 <h1 className="text-gray-900 text-3xl title-font font-medium mb-1">{product?.title}</h1>
                 <div className="flex mb-4">
                   <span className="flex items-center">
                     {[0, 1, 2, 3, 4].map((rating) => (
-                      <StarIcon
-                        key={rating}
-                        className={classNames(
-                          // @ts-ignore
-                          Math.floor(product?.rating.rate) > rating ? "text-gray-900" : "text-gray-200",
-                          "h-4 w-4 flex-shrink-0"
+                      <>
+                        {Math.floor(product?.rating.rate) > rating ? (
+                          <StarIconSolid
+                            key={rating}
+                            className="h-5 w-5 flex-shrink-0 text-yellow-300"
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          <StarIcon key={rating} className="h-4 w-4 flex-shrink-0 text-yellow-300" aria-hidden="true" />
                         )}
-                        aria-hidden="true"
-                      />
+                      </>
                     ))}
                     <span className="text-gray-600 ml-3">
                       {product?.rating.rate} / {product?.rating.count} Reviews
