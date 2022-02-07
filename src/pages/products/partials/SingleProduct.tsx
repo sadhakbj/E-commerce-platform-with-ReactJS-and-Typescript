@@ -2,29 +2,38 @@ import { HeartIcon, StarIcon } from "@heroicons/react/outline"
 import { HeartIcon as HeartIconSolid, StarIcon as StarIconSolid } from "@heroicons/react/solid"
 
 import React from "react"
+import { useDispatch, useSelector } from "react-redux"
 import { Link } from "react-router-dom"
+import { toggleBookmark } from "../../../store/products/actions"
+import { RootState } from "../../../store/reducers"
 import IProduct from "../../../interfaces/IProduct"
 
 interface Props {
   product: IProduct
 }
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ")
-}
-
 const SingleProduct = ({ product }: Props) => {
+  const bookmarkIds: number[] = useSelector((state: RootState) => state.products.bookmarkedIds)
+  console.log(bookmarkIds)
+  const dispatch = useDispatch()
+
+  const handleBookmarkChange = (e) => {
+    dispatch(
+      toggleBookmark(product.id, () => {
+        console.log("hello world")
+      })
+    )
+  }
+
   return (
     <>
       <div key={product.id} className="relative p-5 shadow hover:shadow-xl rounded-md">
-        <button className="absolute z-10 top-0 right-0">
-          {/*{product.isFavorite ? (*/}
-          {/*  <HeartIconSolid className="h-6 w-6 text-red-500" />*/}
-          {/*) : (*/}
-          {/*  <HeartIcon className="h-6 w-6 text-gray-500" />*/}
-          {/*)}*/}
-          <HeartIcon className="m-3 h-7 w-7 text-pink-400 hover:text-pink-600" />
-          {/*<HeartIconSolid className="m-3 h-7 w-7 text-pink-400 hover:text-pink-600" />*/}
+        <button className="absolute z-10 top-2 right-2 bg-white rounded-3xl" onClick={handleBookmarkChange}>
+          {bookmarkIds.includes(product.id) ? (
+            <HeartIconSolid className="m-3 h-7 w-7 text-pink-400 hover:text-pink-600" />
+          ) : (
+            <HeartIcon className="m-3 h-7 w-7 text-pink-400 hover:text-pink-600" />
+          )}
         </button>
         <div className="w-full min-h-60 bg-gray-200 aspect-w-3 aspect-h-4 rounded-md overflow-hidden lg:h-60">
           <img
