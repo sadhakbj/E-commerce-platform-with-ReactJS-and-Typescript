@@ -1,10 +1,10 @@
 import IProduct from "../../interfaces/IProduct"
-import { SET_FILTERED_PRODUCTS, SET_PRODUCTS, SET_SINGLE_PRODUCT } from "./type"
+import { SET_BOOKMARKS, SET_FILTERED_PRODUCTS, SET_PRODUCTS, SET_SINGLE_PRODUCT } from "./type"
 
 interface IProductsState {
   products: IProduct[]
   filteredProducts: IProduct[]
-  bookmarkedProducts: IProduct[]
+  bookmarkedIds: number[]
   singleProduct: IProduct | null
   loading: boolean
   error: string
@@ -13,7 +13,9 @@ interface IProductsState {
 const initialState: IProductsState = {
   products: [],
   filteredProducts: [],
-  bookmarkedProducts: [],
+  bookmarkedIds: localStorage.getItem("bookmarkedIds")
+    ? JSON.parse(localStorage.getItem("bookmarkedIds") as string)
+    : [],
   singleProduct: null,
   loading: false,
   error: "",
@@ -35,6 +37,12 @@ const ProductsReducer = (state = initialState, actions) => {
 
     case SET_FILTERED_PRODUCTS:
       return { ...state, filteredProducts: actions.payload }
+
+    case SET_BOOKMARKS:
+      return {
+        ...state,
+        bookmarkedIds: actions.payload,
+      }
 
     default:
       return state

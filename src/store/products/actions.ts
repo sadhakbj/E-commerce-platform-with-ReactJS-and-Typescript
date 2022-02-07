@@ -1,6 +1,10 @@
-import { SET_FILTERED_PRODUCTS, SET_PRODUCTS, SET_SINGLE_PRODUCT } from "./type"
+import { SET_BOOKMARKS, SET_FILTERED_PRODUCTS, SET_PRODUCTS, SET_SINGLE_PRODUCT } from "./type"
 import Api from "../../common/helpers/Api"
 
+/**
+ * Fetch all the products from the API.
+ * @param onSuccess
+ */
 export const getProducts = (onSuccess) => async (dispatch) => {
   try {
     const response = await Api.get("/products")
@@ -18,6 +22,11 @@ export const getProducts = (onSuccess) => async (dispatch) => {
   }
 }
 
+/**
+ * Filter the products by the given category, query and sortBy params.
+ * @param params
+ * @param onSuccess
+ */
 export const filterProducts = (params, onSuccess) => async (dispatch, getState) => {
   const products = getState().products.products
   let filteredProducts = [...products]
@@ -62,6 +71,11 @@ export const filterProducts = (params, onSuccess) => async (dispatch, getState) 
   }, 500)
 }
 
+/**
+ * Get single product by providedId.
+ * @param productId
+ * @param onSuccess
+ */
 export const getSingleProduct = (productId: number, onSuccess) => async (dispatch) => {
   try {
     const response = await Api.get(`/products/${productId}`)
@@ -73,4 +87,29 @@ export const getSingleProduct = (productId: number, onSuccess) => async (dispatc
   } catch (error) {
     console.log(error)
   }
+}
+
+/**
+ * Store bookmarks on local storage.
+ * @param productId
+ * @param onSuccess
+ */
+export const toggleBookmark = (productId: number, onSuccess) => async (dispatch, getState) => {
+  const bookmarks = getState().products.bookmarkedIds
+
+  const bookmarkIds = [...bookmarks]
+
+  if (bookmarkIds.includes(productId)) {
+    const index = bookmarkIds.indexOf(productId)
+    bookmarkIds.splice(index, 1)
+  } else {
+    bookmarkIds.push(productId)
+  }
+
+  localStorage.setItem("bookmarkedIds", JSON.stringify(bookmarkIds))
+  dispatch({
+    type: SET_BOOKMARKS,
+    payload: bookmarkIds,
+  })
+  onSuccess()
 }
