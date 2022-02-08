@@ -4,7 +4,6 @@ import { useSelector } from "react-redux"
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 import { RootState } from "../../store/reducers"
 import Navbar from "../../layouts/Navbar"
-import About from "../../pages/About"
 import Login from "../../pages/auth/Login"
 import Details from "../../pages/products/Details"
 import Products from "../../pages/products/Index"
@@ -21,11 +20,11 @@ const Router = () => {
       {isLoggedIn ? <Navbar /> : null}
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/about" element={<About />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<Details />} />
         </Route>
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
   )

@@ -1,6 +1,6 @@
 import { Disclosure, Menu, Transition } from "@headlessui/react"
 import { BellIcon, MenuIcon, XIcon } from "@heroicons/react/outline"
-import { Fragment } from "react"
+import React, { Fragment } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { Link, matchPath, useLocation, useNavigate } from "react-router-dom"
 import { logOut } from "../store/auth/actions"
@@ -10,9 +10,8 @@ const classNames = (...classes) => {
   return classes.filter(Boolean).join(" ")
 }
 
-const Navbar = () => {
+const Navbar: React.FC = () => {
   const isLoggedIn = useSelector((state: RootState) => state?.auth.isLoggedIn)
-  const currentUser = useSelector((state: RootState) => state?.auth.currentUser)
   const dispatch = useDispatch()
   const location = useLocation()
   const navigate = useNavigate()

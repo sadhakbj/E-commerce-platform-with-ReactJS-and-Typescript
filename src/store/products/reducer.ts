@@ -1,4 +1,4 @@
-import IProduct from "../../interfaces/IProduct"
+import { IProduct } from "../../interfaces/Product"
 import { SET_BOOKMARKS, SET_FILTERED_PRODUCTS, SET_PRODUCTS, SET_SINGLE_PRODUCT } from "./type"
 
 interface IProductsState {

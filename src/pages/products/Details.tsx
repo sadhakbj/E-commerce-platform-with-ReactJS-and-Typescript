@@ -1,12 +1,12 @@
-import { HeartIcon, StarIcon } from "@heroicons/react/outline"
-import { StarIcon as StarIconSolid } from "@heroicons/react/solid"
+import { HeartIcon, PlusIcon, StarIcon } from "@heroicons/react/outline"
+import { HeartIcon as HeartIconSolid, StarIcon as StarIconSolid } from "@heroicons/react/solid"
 import React, { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useParams } from "react-router-dom"
-import { getSingleProduct } from "../../store/products/actions"
+import { getSingleProduct, toggleBookmark } from "../../store/products/actions"
 import { RootState } from "../../store/reducers"
 import Loader from "../../common/components/Loader"
-import IProduct from "../../interfaces/IProduct"
+import { IProduct } from "../../interfaces/Product"
 
 const Details: React.FC = () => {
   const params = useParams()
@@ -14,6 +14,7 @@ const Details: React.FC = () => {
 
   const dispatch = useDispatch()
   const product: IProduct = useSelector((state: RootState) => state.products.singleProduct)
+  const bookmarkIds: number[] = useSelector((state: RootState) => state.products.bookmarkedIds)
 
   useEffect(() => {
     setLoading(true)
@@ -24,8 +25,12 @@ const Details: React.FC = () => {
     )
   }, [dispatch, params.id])
 
-  function classNames(...classes) {
-    return classes.filter(Boolean).join(" ")
+  /**
+   * Toggle bookmark
+   * @param e
+   */
+  const handleBookmarkChange = (e) => {
+    dispatch(toggleBookmark(product.id))
   }
 
   return (
@@ -41,7 +46,7 @@ const Details: React.FC = () => {
             <div className="lg:w-full mx-auto flex flex-wrap">
               <div className="border border-gray-200 rounded p-[20px] shadow">
                 <img
-                  className="lg:w-auto h-[500px] w-full object-cover object-center"
+                  className="lg:w-[500px] h-[500px] w-full object-fill object-center"
                   src={product?.image}
                   alt={product?.title}
                 />
@@ -55,12 +60,16 @@ const Details: React.FC = () => {
                       <>
                         {Math.floor(product?.rating.rate) > rating ? (
                           <StarIconSolid
-                            key={rating}
+                            key={rating + product?.rating.rate}
                             className="h-5 w-5 flex-shrink-0 text-yellow-300"
                             aria-hidden="true"
                           />
                         ) : (
-                          <StarIcon key={rating} className="h-4 w-4 flex-shrink-0 text-yellow-300" aria-hidden="true" />
+                          <StarIcon
+                            key={rating + product?.rating.rate}
+                            className="h-4 w-4 flex-shrink-0 text-yellow-300"
+                            aria-hidden="true"
+                          />
                         )}
                       </>
                     ))}
@@ -91,11 +100,18 @@ const Details: React.FC = () => {
                 </div>
                 <div className="flex">
                   <span className="title-font font-medium text-2xl text-gray-900">${product?.price}</span>
-                  <button className="flex ml-auto text-white bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded">
-                    Button
+                  <button className="flex ml-auto text-white bg-indigo-600 border border-transparent border-0 py-2 px-6 focus:outline-none hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-50 rounded">
+                    <PlusIcon className="flex justify-around h-5 w-5 mr-1" aria-hidden="true" /> Add to Cart
                   </button>
-                  <button className="rounded-full w-10 h-10 bg-gray-200 p-0 border-0 inline-flex items-center justify-center text-gray-500 ml-4">
-                    <HeartIcon className="h-5 w-5" aria-hidden="true" />
+                  <button
+                    onClick={handleBookmarkChange}
+                    className="rounded-full w-10 h-10 bg-gray-200 p-0 border-0 inline-flex items-center justify-center text-pink-400 hover:text-pink-600 ml-4"
+                  >
+                    {bookmarkIds.includes(product?.id) ? (
+                      <HeartIconSolid className="m-3 h-8 w-8 text-pink-400 hover:text-pink-700" />
+                    ) : (
+                      <HeartIcon className="m-3 h-8 w-8 text-pink-400 hover:text-pink-700" />
+                    )}
                   </button>
                 </div>
               </div>
