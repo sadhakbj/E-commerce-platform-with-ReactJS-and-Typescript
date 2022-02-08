@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { Link } from "react-router-dom"
 import { toggleBookmark } from "../../../store/products/actions"
 import { RootState } from "../../../store/reducers"
-import IProduct from "../../../interfaces/IProduct"
+import { IProduct } from "../../../interfaces/Product"
 
 interface Props {
   product: IProduct
@@ -14,15 +14,10 @@ interface Props {
 
 const SingleProduct = ({ product }: Props) => {
   const bookmarkIds: number[] = useSelector((state: RootState) => state.products.bookmarkedIds)
-  console.log(bookmarkIds)
   const dispatch = useDispatch()
 
   const handleBookmarkChange = (e) => {
-    dispatch(
-      toggleBookmark(product.id, () => {
-        console.log("hello world")
-      })
-    )
+    dispatch(toggleBookmark(product.id))
   }
 
   return (
@@ -54,9 +49,17 @@ const SingleProduct = ({ product }: Props) => {
             {[0, 1, 2, 3, 4].map((rating) => (
               <>
                 {Math.floor(product?.rating.rate) > rating ? (
-                  <StarIconSolid key={rating} className="h-5 w-5 flex-shrink-0 text-yellow-300" aria-hidden="true" />
+                  <StarIconSolid
+                    key={rating + product?.rating.rate}
+                    className="h-5 w-5 flex-shrink-0 text-yellow-300"
+                    aria-hidden="true"
+                  />
                 ) : (
-                  <StarIcon key={rating} className="h-4 w-4 flex-shrink-0 text-yellow-300" aria-hidden="true" />
+                  <StarIcon
+                    key={rating + product?.rating.rate}
+                    className="h-4 w-4 flex-shrink-0 text-yellow-300"
+                    aria-hidden="true"
+                  />
                 )}
               </>
             ))}

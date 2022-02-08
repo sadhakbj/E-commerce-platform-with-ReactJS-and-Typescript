@@ -1,4 +1,4 @@
-export default interface IProduct {
+export interface IProduct {
   id: number
   title: string
   price: number
@@ -9,4 +9,10 @@ export default interface IProduct {
     rate: number
     count: number
   }
+}
+
+export interface IFilterParams {
+  q: string
+  category: string[]
+  sortBy: string
 }

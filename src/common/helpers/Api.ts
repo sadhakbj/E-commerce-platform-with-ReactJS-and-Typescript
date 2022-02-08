@@ -5,7 +5,7 @@ class Api {
 
   constructor() {
     this.http = Axios.create({
-      baseURL: process.env.REACT_APP_API_URL || "https://fakestoreapi.com",
+      baseURL: "https://fakestoreapi.com",
       timeout: 45000,
     })
   }

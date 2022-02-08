@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
+import { ICredentials } from "../../interfaces/Auth"
 import Loader from "../../common/components/Loader"
 import { attemptLogin } from "../../store/auth/actions"
 import { RootState } from "../../store/reducers"
@@ -9,11 +10,11 @@ const Login: React.FC = () => {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const dispatch = useDispatch()
-  const initialCredentials = {
+  const initialCredentials: ICredentials = {
     username: "",
     password: "",
   }
-  const [credentials, setCredentials] = useState(initialCredentials)
+  const [credentials, setCredentials] = useState<ICredentials>(initialCredentials)
   const [formErrors, setFormErrors] = useState<string>("")
 
   const isLoggedIn = useSelector((state: RootState) => state?.auth.isLoggedIn)
@@ -24,11 +25,18 @@ const Login: React.FC = () => {
     }
   }, [isLoggedIn, navigate])
 
+  /**
+   * Redirect to products page on success.
+   */
   const handleOnSuccess = () => {
     setLoading(false)
     navigate("/products")
   }
 
+  /**
+   * Attempt login with credentials provided.
+   * @param e
+   */
   const handleLogin = async (e) => {
     e.preventDefault()
     setLoading(true)
@@ -44,6 +52,10 @@ const Login: React.FC = () => {
     )
   }
 
+  /**
+   * Bind the input value to the credentials object.
+   * @param e
+   */
   const handleChange = (e) => {
     e.persist()
     setCredentials((credentials) => ({ ...credentials, [e.target.name]: e.target.value }))
@@ -58,7 +70,7 @@ const Login: React.FC = () => {
             src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
             alt="Workflow"
           />
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Login to your account</h2>
         </div>
 
         <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-md border rounded-md border-gray-200 shadow-2xl">
@@ -130,7 +142,7 @@ const Login: React.FC = () => {
                   disabled={loading}
                   className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
-                  Sign in
+                  Login
                 </button>
               </div>
             </form>

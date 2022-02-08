@@ -92,9 +92,8 @@ export const getSingleProduct = (productId: number, onSuccess) => async (dispatc
 /**
  * Store bookmarks on local storage.
  * @param productId
- * @param onSuccess
  */
-export const toggleBookmark = (productId: number, onSuccess) => async (dispatch, getState) => {
+export const toggleBookmark = (productId: number) => async (dispatch, getState) => {
   const bookmarks = getState().products.bookmarkedIds
 
   const bookmarkIds = [...bookmarks]
@@ -111,5 +110,4 @@ export const toggleBookmark = (productId: number, onSuccess) => async (dispatch,
     type: SET_BOOKMARKS,
     payload: bookmarkIds,
   })
-  onSuccess()
 }
